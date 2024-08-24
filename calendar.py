@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import calendar
+import calendar as cal  # Changed this line
 from datetime import datetime
 
 class CalendarApp(tk.Tk):
@@ -57,7 +57,7 @@ class CalendarApp(tk.Tk):
         )
 
         # Get calendar for current month
-        cal = calendar.monthcalendar(self.current_date.year, self.current_date.month)
+        month_cal = cal.monthcalendar(self.current_date.year, self.current_date.month)  # Changed this line
 
         # Create day labels
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -74,7 +74,7 @@ class CalendarApp(tk.Tk):
             lbl.grid(row=0, column=i, sticky="nsew")
 
         # Create date buttons
-        for week_num, week in enumerate(cal, start=1):
+        for week_num, week in enumerate(month_cal, start=1):
             for day_num, day in enumerate(week):
                 if day != 0:
                     btn = tk.Button(
