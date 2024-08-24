@@ -7,7 +7,7 @@ class CalendarApp(tk.Tk):
         super().__init__()
 
         # Set up the main window
-        self.title("Modern Calendar App")
+        self.title("My Calendar App")
         self.geometry("400x400")
         self.configure(bg="#f0f0f0")
 
@@ -132,4 +132,3 @@ if __name__ == "__main__":
     app = CalendarApp()
     app.mainloop()
      # type: ignore
-     
