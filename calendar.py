@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import calendar as cal  # Changed this line
+import calendar as cal
 from datetime import datetime
 
 class CalendarApp(tk.Tk):
@@ -57,7 +57,7 @@ class CalendarApp(tk.Tk):
         )
 
         # Get calendar for current month
-        month_cal = cal.monthcalendar(self.current_date.year, self.current_date.month)  # Changed this line
+        month_cal = cal.monthcalendar(self.current_date.year, self.current_date.month)
 
         # Create day labels
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -116,4 +116,3 @@ class CalendarApp(tk.Tk):
 if __name__ == "__main__":
     app = CalendarApp()
     app.mainloop()
-    
