@@ -29,13 +29,12 @@ class CalendarApp(tk.Tk):
             font=("Helvetica", 18, "bold"),
             bg="#4a4a4a",
             fg="white",
-            width=10  # Set a fixed width for the label
         )
-        self.month_year_label.pack(side=tk.LEFT, padx=10)
+        self.month_year_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.X)
 
         # Create a frame for navigation buttons
         nav_frame = tk.Frame(header_frame, bg="#4a4a4a")
-        nav_frame.pack(side=tk.RIGHT, padx=10)
+        nav_frame.pack(side=tk.RIGHT)
 
         # Create and place the previous month button
         prev_button = ttk.Button(nav_frame, text="<", command=self.prev_month, width=3)
