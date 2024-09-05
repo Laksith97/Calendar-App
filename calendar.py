@@ -28,16 +28,21 @@ class CalendarApp(tk.Tk):
             header_frame,
             font=("Helvetica", 18, "bold"),
             bg="#4a4a4a",
-            fg="white"
+            fg="white",
+            width=10  # Set a fixed width for the label
         )
         self.month_year_label.pack(side=tk.LEFT, padx=10)
 
+        # Create a frame for navigation buttons
+        nav_frame = tk.Frame(header_frame, bg="#4a4a4a")
+        nav_frame.pack(side=tk.RIGHT, padx=10)
+
         # Create and place the previous month button
-        prev_button = ttk.Button(header_frame, text="<", command=self.prev_month)
+        prev_button = ttk.Button(nav_frame, text="<", command=self.prev_month, width=3)
         prev_button.pack(side=tk.LEFT, padx=5)
 
         # Create and place the next month button
-        next_button = ttk.Button(header_frame, text=">", command=self.next_month)
+        next_button = ttk.Button(nav_frame, text=">", command=self.next_month, width=3)
         next_button.pack(side=tk.LEFT)
 
         # Create and place the calendar frame
@@ -131,5 +136,5 @@ class CalendarApp(tk.Tk):
 
 if __name__ == "__main__":
     app = CalendarApp()
-    app.mainloop()
-     # type: ignore
+    app.mainloop() # type: ignore
+    
