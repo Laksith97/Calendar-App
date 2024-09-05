@@ -21,7 +21,7 @@ class CalendarApp(tk.Tk):
     def setup_ui(self):
         # Create header frame
         header_frame = tk.Frame(self, bg="#4a4a4a")
-        header_frame.pack(fill=tk.X, padx=10, pady=10)
+        header_frame.pack(fill=tk.X, padx=20, pady=10)
 
         # Create and place the month/year label
         self.month_year_label = tk.Label(
@@ -29,8 +29,9 @@ class CalendarApp(tk.Tk):
             font=("Helvetica", 18, "bold"),
             bg="#4a4a4a",
             fg="white",
+            anchor="w"
         )
-        self.month_year_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.X)
+        self.month_year_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # Create a frame for navigation buttons
         nav_frame = tk.Frame(header_frame, bg="#4a4a4a")
@@ -38,7 +39,7 @@ class CalendarApp(tk.Tk):
 
         # Create and place the previous month button
         prev_button = ttk.Button(nav_frame, text="<", command=self.prev_month, width=3)
-        prev_button.pack(side=tk.LEFT, padx=5)
+        prev_button.pack(side=tk.LEFT, padx=(0, 5))
 
         # Create and place the next month button
         next_button = ttk.Button(nav_frame, text=">", command=self.next_month, width=3)
@@ -46,7 +47,7 @@ class CalendarApp(tk.Tk):
 
         # Create and place the calendar frame
         self.calendar_frame = tk.Frame(self, bg="#ffffff")
-        self.calendar_frame.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        self.calendar_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=10)
 
         # Display the initial calendar
         self.display_calendar()
