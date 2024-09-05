@@ -13,6 +13,7 @@ class CalendarApp(tk.Tk):
 
         # Initialize the current date
         self.current_date = datetime.now()
+        self.today = datetime.now().date()
         
         # Set up the user interface
         self.setup_ui()
@@ -91,9 +92,9 @@ class CalendarApp(tk.Tk):
                 btn.grid(row=row, column=col, sticky="nsew")
 
                 # Highlight the current day
-                if (day == self.current_date.day and
-                    self.current_date.month == datetime.now().month and
-                    self.current_date.year == datetime.now().year):
+                if (day == self.today.day and
+                    self.current_date.month == self.today.month and
+                    self.current_date.year == self.today.year):
                     btn.config(bg="#4a4a4a", fg="white")
 
         # Make the grid expandable
