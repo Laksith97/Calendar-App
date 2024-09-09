@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime, timedelta
+from playsound import playsound # type: ignore
+import os
 
 class CalendarApp(tk.Tk):
     def __init__(self):
@@ -14,6 +16,9 @@ class CalendarApp(tk.Tk):
         # Initialize the current date
         self.current_date = datetime.now()
         self.today = datetime.now().date()
+        
+        # Set up the sound file path
+        self.sound_file = os.path.join(os.path.dirname(__file__), "click.mp3")
         
         # Set up the user interface
         self.setup_ui()
@@ -38,11 +43,11 @@ class CalendarApp(tk.Tk):
         nav_frame.pack(side=tk.RIGHT)
 
         # Create and place the previous month button
-        prev_button = ttk.Button(nav_frame, text="<", command=self.prev_month, width=3)
+        prev_button = ttk.Button(nav_frame, text="<", command=self.prev_month_with_sound, width=3)
         prev_button.pack(side=tk.LEFT, padx=(0, 5))
 
         # Create and place the next month button
-        next_button = ttk.Button(nav_frame, text=">", command=self.next_month, width=3)
+        next_button = ttk.Button(nav_frame, text=">", command=self.next_month_with_sound, width=3)
         next_button.pack(side=tk.LEFT)
 
         # Create and place the calendar frame
@@ -151,6 +156,20 @@ class CalendarApp(tk.Tk):
         self.current_date = self.current_date.replace(month=self.current_date.month + 1) if self.current_date.month < 12 else self.current_date.replace(year=self.current_date.year + 1, month=1)
         self.display_calendar()
 
+    def prev_month_with_sound(self):
+        self.play_sound()
+        self.prev_month()
+
+    def next_month_with_sound(self):
+        self.play_sound()
+        self.next_month()
+
+    def play_sound(self):
+        try:
+            playsound(self.sound_file, block=False)
+        except Exception as e:
+            print(f"Error playing sound: {e}")
+
     def update_time(self):
         # Update the time label with the current time
         current_time = datetime.now().strftime("%I:%M:%S %p")
@@ -160,5 +179,5 @@ class CalendarApp(tk.Tk):
 
 if __name__ == "__main__":
     app = CalendarApp()
-    app.mainloop() # type: ignore
-    
+    app.mainloop()
+     # type: ignore
