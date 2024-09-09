@@ -8,7 +8,7 @@ class CalendarApp(tk.Tk):
 
         # Set up the main window
         self.title("My Calendar App")
-        self.geometry("400x400")
+        self.geometry("400x450")  # Increased height to accommodate the time display
         self.configure(bg="#f0f0f0")
 
         # Initialize the current date
@@ -49,8 +49,25 @@ class CalendarApp(tk.Tk):
         self.calendar_frame = tk.Frame(self, bg="#ffffff")
         self.calendar_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=10)
 
+        # Create and place the time frame
+        time_frame = tk.Frame(self, bg="#4a4a4a")
+        time_frame.pack(fill=tk.X, padx=20, pady=10)
+
+        # Create and place the time label
+        self.time_label = tk.Label(
+            time_frame,
+            font=("Helvetica", 14),
+            bg="#4a4a4a",
+            fg="white",
+            anchor="center"
+        )
+        self.time_label.pack(fill=tk.X, expand=True)
+
         # Display the initial calendar
         self.display_calendar()
+
+        # Start updating the time
+        self.update_time()
 
     def display_calendar(self):
         # Clear existing widgets in the calendar frame
@@ -133,6 +150,13 @@ class CalendarApp(tk.Tk):
         self.current_date = self.current_date.replace(day=1)
         self.current_date = self.current_date.replace(month=self.current_date.month + 1) if self.current_date.month < 12 else self.current_date.replace(year=self.current_date.year + 1, month=1)
         self.display_calendar()
+
+    def update_time(self):
+        # Update the time label with the current time
+        current_time = datetime.now().strftime("%I:%M:%S %p")
+        self.time_label.config(text=current_time)
+        # Schedule the next update in 1000ms (1 second)
+        self.after(1000, self.update_time)
 
 if __name__ == "__main__":
     app = CalendarApp()
