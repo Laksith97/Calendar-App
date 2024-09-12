@@ -236,5 +236,5 @@ if __name__ == "__main__":
     app = CalendarApp()
     app.update_time()
     app.display_calendar()
-    app.mainloop() # type: ignore
-    
+    app.mainloop() 
+    # type: ignore
