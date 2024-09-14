@@ -7,32 +7,26 @@ class CalendarApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        # Set up the main window
         self.title("Enhanced Calendar App")
-        self.geometry("500x650")  # Increased height to accommodate new fields
+        self.geometry("600x700")
         self.configure(bg="#f0f0f0")
 
-        # Initialize date variables
         self.current_date = datetime.now()
         self.today = datetime.now().date()
         
-        # Set up the user interface and database
         self.setup_ui()
         self.create_database()
 
     def setup_ui(self):
-        """Set up the main components of the user interface"""
         self.setup_header()
         self.setup_calendar()
         self.setup_time_display()
         self.setup_event_section()
 
     def setup_header(self):
-        """Create the header with month/year display and navigation buttons"""
         header_frame = tk.Frame(self, bg="#4a4a4a")
         header_frame.pack(fill=tk.X, padx=20, pady=10)
 
-        # Month and Year label
         self.month_year_label = tk.Label(
             header_frame,
             font=("Helvetica", 18, "bold"),
@@ -42,7 +36,6 @@ class CalendarApp(tk.Tk):
         )
         self.month_year_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-        # Navigation buttons
         nav_frame = tk.Frame(header_frame, bg="#4a4a4a")
         nav_frame.pack(side=tk.RIGHT)
 
@@ -53,12 +46,10 @@ class CalendarApp(tk.Tk):
         next_button.pack(side=tk.LEFT)
 
     def setup_calendar(self):
-        """Create the main calendar frame"""
         self.calendar_frame = tk.Frame(self, bg="#ffffff")
         self.calendar_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=10)
 
     def setup_time_display(self):
-        """Create the current time display"""
         time_frame = tk.Frame(self, bg="#4a4a4a")
         time_frame.pack(fill=tk.X, padx=20, pady=10)
 
@@ -72,35 +63,25 @@ class CalendarApp(tk.Tk):
         self.time_label.pack(fill=tk.X, expand=True)
 
     def setup_event_section(self):
-        """Create the event management section"""
         event_frame = tk.Frame(self, bg="#ffffff")
         event_frame.pack(fill=tk.X, padx=20, pady=10)
 
-        # Date entry field
-        tk.Label(event_frame, text="Date (YYYY-MM-DD):", bg="#ffffff").grid(row=0, column=0, sticky="w")
-        self.date_entry = tk.Entry(event_frame, width=12)
-        self.date_entry.grid(row=0, column=1, padx=5)
-        self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))  # Default to today's date
+        self.event_date_label = tk.Label(event_frame, text="Selected Date: ", bg="#ffffff", font=("Helvetica", 12, "bold"))
+        self.event_date_label.pack(anchor="w")
 
-        # Event entry field
-        tk.Label(event_frame, text="Event:", bg="#ffffff").grid(row=1, column=0, sticky="w")
-        self.event_entry = tk.Entry(event_frame, width=30)
-        self.event_entry.grid(row=1, column=1, padx=5)
+        self.event_listbox = tk.Listbox(event_frame, width=70, height=5)
+        self.event_listbox.pack(pady=10)
 
-        # Add event button
-        add_button = ttk.Button(event_frame, text="Add Event", command=self.add_event)
-        add_button.grid(row=1, column=2, padx=5)
+        button_frame = tk.Frame(event_frame, bg="#ffffff")
+        button_frame.pack(fill=tk.X)
 
-        # Event list
-        self.event_listbox = tk.Listbox(event_frame, width=50, height=5)
-        self.event_listbox.grid(row=2, column=0, columnspan=3, pady=10)
+        add_button = ttk.Button(button_frame, text="Add Event", command=self.show_add_event_dialog)
+        add_button.pack(side=tk.LEFT, padx=5)
 
-        # Delete event button
-        delete_button = ttk.Button(event_frame, text="Delete Event", command=self.delete_event)
-        delete_button.grid(row=3, column=0, columnspan=3)
+        delete_button = ttk.Button(button_frame, text="Delete Event", command=self.delete_event)
+        delete_button.pack(side=tk.LEFT, padx=5)
 
     def create_database(self):
-        """Create or connect to the SQLite database"""
         self.conn = sqlite3.connect('calendar_events.db')
         self.cursor = self.conn.cursor()
         self.cursor.execute('''
@@ -110,15 +91,11 @@ class CalendarApp(tk.Tk):
         self.conn.commit()
 
     def display_calendar(self):
-        """Display the calendar for the current month"""
-        # Clear existing calendar
         for widget in self.calendar_frame.winfo_children():
             widget.destroy()
 
-        # Update month/year label
         self.month_year_label.config(text=self.current_date.strftime("%B %Y"))
 
-        # Create weekday labels
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         for i, day in enumerate(days):
             lbl = tk.Label(
@@ -132,10 +109,8 @@ class CalendarApp(tk.Tk):
             )
             lbl.grid(row=0, column=i, sticky="nsew")
 
-        # Get days for the current month
         month_days = self.get_month_days(self.current_date.year, self.current_date.month)
 
-        # Create day buttons
         for i, day in enumerate(month_days):
             row = i // 7 + 1
             col = i % 7
@@ -153,97 +128,89 @@ class CalendarApp(tk.Tk):
                 )
                 btn.grid(row=row, column=col, sticky="nsew")
 
-                # Highlight today's date
                 if (day == self.today.day and
                     self.current_date.month == self.today.month and
                     self.current_date.year == self.today.year):
                     btn.config(bg="#4a4a4a", fg="white")
 
-                # Check for events on this day
                 date = f"{self.current_date.year}-{self.current_date.month:02d}-{day:02d}"
                 self.cursor.execute("SELECT * FROM events WHERE date = ?", (date,))
                 if self.cursor.fetchone():
-                    btn.config(fg="red")  # Highlight days with events
+                    btn.config(fg="red")
 
-        # Make the grid expandable
         for i in range(7):
             self.calendar_frame.grid_columnconfigure(i, weight=1)
         for i in range(7):
             self.calendar_frame.grid_rowconfigure(i, weight=1)
 
     def get_month_days(self, year, month):
-        """Calculate the days to be displayed for the given month"""
         first_day = datetime(year, month, 1)
         last_day = (first_day.replace(month=first_day.month % 12 + 1, day=1) - timedelta(days=1)).day
         first_weekday = first_day.weekday()
         
-        # Create a list of days, padding with zeros for days before the 1st
         month_days = [0] * first_weekday + list(range(1, last_day + 1))
-        # Pad the end to always have 6 weeks displayed
         month_days += [0] * (42 - len(month_days))
         return month_days
 
     def prev_month(self):
-        """Go to the previous month"""
         self.current_date = self.current_date.replace(day=1)
         self.current_date = self.current_date.replace(month=self.current_date.month - 1) if self.current_date.month > 1 else self.current_date.replace(year=self.current_date.year - 1, month=12)
         self.display_calendar()
 
     def next_month(self):
-        """Go to the next month"""
         self.current_date = self.current_date.replace(day=1)
         self.current_date = self.current_date.replace(month=self.current_date.month + 1) if self.current_date.month < 12 else self.current_date.replace(year=self.current_date.year + 1, month=1)
         self.display_calendar()
 
     def update_time(self):
-        """Update the current time display"""
         current_time = datetime.now().strftime("%I:%M:%S %p")
         self.time_label.config(text=current_time)
-        self.after(1000, self.update_time)  # Schedule the next update in 1 second
+        self.after(1000, self.update_time)
 
-    def add_event(self):
-        """Add a new event to the database"""
-        event = self.event_entry.get()
-        date = self.date_entry.get()
+    def show_add_event_dialog(self):
+        dialog = tk.Toplevel(self)
+        dialog.title("Add Event")
+        dialog.geometry("300x100")
         
-        if event and date:
-            try:
-                # Validate the date format
-                datetime.strptime(date, "%Y-%m-%d")
-                
+        tk.Label(dialog, text="Event:").pack()
+        event_entry = tk.Entry(dialog, width=30)
+        event_entry.pack()
+        
+        def add_event():
+            event = event_entry.get()
+            if event:
+                date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
                 self.cursor.execute("INSERT INTO events (date, event) VALUES (?, ?)", (date, event))
                 self.conn.commit()
-                self.event_entry.delete(0, tk.END)
-                self.show_events(int(date.split('-')[2]))  # Show events for the day of the added event
-                self.display_calendar()  # Refresh the calendar to show the new event
-                messagebox.showinfo("Success", "Event added successfully!")
-            except ValueError:
-                messagebox.showerror("Invalid Date", "Please enter the date in YYYY-MM-DD format.")
-        else:
-            messagebox.showwarning("Invalid Input", "Please enter both a date and an event.")
+                self.show_events(self.current_date.day)
+                self.display_calendar()
+                dialog.destroy()
+            else:
+                messagebox.showwarning("Invalid Input", "Please enter an event.")
+        
+        tk.Button(dialog, text="Add", command=add_event).pack()
 
     def show_events(self, day):
-        """Display events for the selected day"""
         self.current_date = self.current_date.replace(day=day)
         date = f"{self.current_date.year}-{self.current_date.month:02d}-{day:02d}"
+        self.event_date_label.config(text=f"Selected Date: {date}")
+        
         self.cursor.execute("SELECT * FROM events WHERE date = ?", (date,))
         events = self.cursor.fetchall()
         
         self.event_listbox.delete(0, tk.END)
         for event in events:
-            self.event_listbox.insert(tk.END, f"{event[1]}: {event[2]}")
+            self.event_listbox.insert(tk.END, event[2])
 
     def delete_event(self):
-        """Delete the selected event from the database"""
         selection = self.event_listbox.curselection()
         if selection:
-            event_info = self.event_listbox.get(selection[0])
-            date, event = event_info.split(': ', 1)
+            event = self.event_listbox.get(selection[0])
+            date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
             self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event))
             self.conn.commit()
             self.show_events(self.current_date.day)
-            self.display_calendar()  # Refresh the calendar to reflect the deletion
-            messagebox.showinfo("Success", "Event deleted successfully!")
+            self.display_calendar()
         else:
             messagebox.showwarning("No Selection", "Please select an event to delete.")
 
@@ -251,6 +218,5 @@ if __name__ == "__main__":
     app = CalendarApp()
     app.update_time()
     app.display_calendar()
-    app.mainloop() 
-    # type: ignore
+    app.mainloop() # type: ignore
     
