@@ -9,7 +9,7 @@ class CalendarApp(tk.Tk):
 
         # Set up the main window
         self.title("Enhanced Calendar App")
-        self.geometry("500x600")
+        self.geometry("500x650")  # Increased height to accommodate new fields
         self.configure(bg="#f0f0f0")
 
         # Initialize date variables
@@ -76,22 +76,28 @@ class CalendarApp(tk.Tk):
         event_frame = tk.Frame(self, bg="#ffffff")
         event_frame.pack(fill=tk.X, padx=20, pady=10)
 
+        # Date entry field
+        tk.Label(event_frame, text="Date (YYYY-MM-DD):", bg="#ffffff").grid(row=0, column=0, sticky="w")
+        self.date_entry = tk.Entry(event_frame, width=12)
+        self.date_entry.grid(row=0, column=1, padx=5)
+        self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))  # Default to today's date
+
         # Event entry field
-        tk.Label(event_frame, text="Event:", bg="#ffffff").grid(row=0, column=0, sticky="w")
+        tk.Label(event_frame, text="Event:", bg="#ffffff").grid(row=1, column=0, sticky="w")
         self.event_entry = tk.Entry(event_frame, width=30)
-        self.event_entry.grid(row=0, column=1, padx=5)
+        self.event_entry.grid(row=1, column=1, padx=5)
 
         # Add event button
         add_button = ttk.Button(event_frame, text="Add Event", command=self.add_event)
-        add_button.grid(row=0, column=2, padx=5)
+        add_button.grid(row=1, column=2, padx=5)
 
         # Event list
         self.event_listbox = tk.Listbox(event_frame, width=50, height=5)
-        self.event_listbox.grid(row=1, column=0, columnspan=3, pady=10)
+        self.event_listbox.grid(row=2, column=0, columnspan=3, pady=10)
 
         # Delete event button
         delete_button = ttk.Button(event_frame, text="Delete Event", command=self.delete_event)
-        delete_button.grid(row=2, column=0, columnspan=3)
+        delete_button.grid(row=3, column=0, columnspan=3)
 
     def create_database(self):
         """Create or connect to the SQLite database"""
@@ -198,15 +204,23 @@ class CalendarApp(tk.Tk):
     def add_event(self):
         """Add a new event to the database"""
         event = self.event_entry.get()
-        if event:
-            date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
-            self.cursor.execute("INSERT INTO events (date, event) VALUES (?, ?)", (date, event))
-            self.conn.commit()
-            self.event_entry.delete(0, tk.END)
-            self.show_events(self.current_date.day)
-            self.display_calendar()  # Refresh the calendar to show the new event
+        date = self.date_entry.get()
+        
+        if event and date:
+            try:
+                # Validate the date format
+                datetime.strptime(date, "%Y-%m-%d")
+                
+                self.cursor.execute("INSERT INTO events (date, event) VALUES (?, ?)", (date, event))
+                self.conn.commit()
+                self.event_entry.delete(0, tk.END)
+                self.show_events(int(date.split('-')[2]))  # Show events for the day of the added event
+                self.display_calendar()  # Refresh the calendar to show the new event
+                messagebox.showinfo("Success", "Event added successfully!")
+            except ValueError:
+                messagebox.showerror("Invalid Date", "Please enter the date in YYYY-MM-DD format.")
         else:
-            messagebox.showwarning("Invalid Input", "Please enter an event.")
+            messagebox.showwarning("Invalid Input", "Please enter both a date and an event.")
 
     def show_events(self, day):
         """Display events for the selected day"""
@@ -217,18 +231,19 @@ class CalendarApp(tk.Tk):
         
         self.event_listbox.delete(0, tk.END)
         for event in events:
-            self.event_listbox.insert(tk.END, event[2])
+            self.event_listbox.insert(tk.END, f"{event[1]}: {event[2]}")
 
     def delete_event(self):
         """Delete the selected event from the database"""
         selection = self.event_listbox.curselection()
         if selection:
-            event = self.event_listbox.get(selection[0])
-            date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
+            event_info = self.event_listbox.get(selection[0])
+            date, event = event_info.split(': ', 1)
             self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event))
             self.conn.commit()
             self.show_events(self.current_date.day)
             self.display_calendar()  # Refresh the calendar to reflect the deletion
+            messagebox.showinfo("Success", "Event deleted successfully!")
         else:
             messagebox.showwarning("No Selection", "Please select an event to delete.")
 
@@ -238,3 +253,4 @@ if __name__ == "__main__":
     app.display_calendar()
     app.mainloop() 
     # type: ignore
+    
