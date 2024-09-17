@@ -207,10 +207,18 @@ class CalendarApp(tk.Tk):
         if selection:
             event = self.event_listbox.get(selection[0])
             date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
-            self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event))
-            self.conn.commit()
-            self.show_events(self.current_date.day)
-            self.display_calendar()
+            
+            # Create a confirmation dialog
+            confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the event:\n\n{event}\n\non {date}?")
+            
+            if confirm:
+                self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event))
+                self.conn.commit()
+                self.show_events(self.current_date.day)
+                self.display_calendar()
+                messagebox.showinfo("Event Deleted", "The event has been successfully deleted.")
+            else:
+                messagebox.showinfo("Deletion Cancelled", "The event was not deleted.")
         else:
             messagebox.showwarning("No Selection", "Please select an event to delete.")
 
