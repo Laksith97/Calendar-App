@@ -69,7 +69,7 @@ class CalendarApp(tk.Tk):
         self.event_date_label = tk.Label(event_frame, text="Selected Date: ", bg="#ffffff", font=("Helvetica", 12, "bold"))
         self.event_date_label.pack(anchor="w")
 
-        self.event_listbox = tk.Listbox(event_frame, width=70, height=5)
+        self.event_listbox = tk.Listbox(event_frame, width=70, height=6)
         self.event_listbox.pack(pady=10)
 
         button_frame = tk.Frame(event_frame, bg="#ffffff")
