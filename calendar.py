@@ -29,7 +29,7 @@ class CalendarApp(tk.Tk):
 
         self.month_year_label = tk.Label(
             header_frame,
-            font=("Helvetica", 18, "bold"),
+            font=("Helvetica", 16, "bold"),
             bg="#4a4a4a",
             fg="white",
             anchor="w"
