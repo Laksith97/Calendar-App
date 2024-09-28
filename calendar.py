@@ -14,6 +14,13 @@ class CalendarApp(tk.Tk):
         self.current_date = datetime.now()
         self.today = datetime.now().date()
         
+        self.categories = {
+            "Work": "#FF6B6B",
+            "Personal": "#4ECDC4",
+            "Holiday": "#45B7D1",
+            "Other": "#FFA07A"
+        }
+        
         self.setup_ui()
         self.create_database()
 
@@ -86,7 +93,7 @@ class CalendarApp(tk.Tk):
         self.cursor = self.conn.cursor()
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS events
-            (id INTEGER PRIMARY KEY, date TEXT, event TEXT)
+            (id INTEGER PRIMARY KEY, date TEXT, event TEXT, category TEXT)
         ''')
         self.conn.commit()
 
@@ -134,9 +141,14 @@ class CalendarApp(tk.Tk):
                     btn.config(bg="#4a4a4a", fg="white")
 
                 date = f"{self.current_date.year}-{self.current_date.month:02d}-{day:02d}"
-                self.cursor.execute("SELECT * FROM events WHERE date = ?", (date,))
-                if self.cursor.fetchone():
-                    btn.config(fg="red")
+                self.cursor.execute("SELECT category FROM events WHERE date = ?", (date,))
+                events = self.cursor.fetchall()
+                if events:
+                    categories = set(event[0] for event in events)
+                    if len(categories) == 1:
+                        btn.config(fg=self.categories[list(categories)[0]])
+                    else:
+                        btn.config(fg="red")
 
         for i in range(7):
             self.calendar_frame.grid_columnconfigure(i, weight=1)
@@ -170,17 +182,24 @@ class CalendarApp(tk.Tk):
     def show_add_event_dialog(self):
         dialog = tk.Toplevel(self)
         dialog.title("Add Event")
-        dialog.geometry("300x100")
+        dialog.geometry("300x150")
         
         tk.Label(dialog, text="Event:").pack()
         event_entry = tk.Entry(dialog, width=30)
         event_entry.pack()
         
+        tk.Label(dialog, text="Category:").pack()
+        category_var = tk.StringVar(dialog)
+        category_var.set(list(self.categories.keys())[0])  # default value
+        category_menu = ttk.Combobox(dialog, textvariable=category_var, values=list(self.categories.keys()))
+        category_menu.pack()
+        
         def add_event():
             event = event_entry.get()
+            category = category_var.get()
             if event:
                 date = f"{self.current_date.year}-{self.current_date.month:02d}-{self.current_date.day:02d}"
-                self.cursor.execute("INSERT INTO events (date, event) VALUES (?, ?)", (date, event))
+                self.cursor.execute("INSERT INTO events (date, event, category) VALUES (?, ?, ?)", (date, event, category))
                 self.conn.commit()
                 self.show_events(self.current_date.day)
                 self.display_calendar()
@@ -200,7 +219,10 @@ class CalendarApp(tk.Tk):
         
         self.event_listbox.delete(0, tk.END)
         for event in events:
-            self.event_listbox.insert(tk.END, event[2])
+            category = event[3]
+            color = self.categories.get(category, self.categories["Other"])
+            self.event_listbox.insert(tk.END, f"{event[2]} ({category})")
+            self.event_listbox.itemconfig(tk.END, {'bg': color})
 
     def delete_event(self):
         selection = self.event_listbox.curselection()
@@ -212,7 +234,8 @@ class CalendarApp(tk.Tk):
             confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the event:\n\n{event}\n\non {date}?")
             
             if confirm:
-                self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event))
+                event_name = event.split(" (")[0]  # Extract event name without category
+                self.cursor.execute("DELETE FROM events WHERE date = ? AND event = ?", (date, event_name))
                 self.conn.commit()
                 self.show_events(self.current_date.day)
                 self.display_calendar()
