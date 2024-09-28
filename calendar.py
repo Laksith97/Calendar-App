@@ -21,8 +21,8 @@ class CalendarApp(tk.Tk):
             "Other": "#FFA07A"
         }
         
-        self.setup_ui()
         self.create_database()
+        self.setup_ui()
 
     def setup_ui(self):
         self.setup_header()
@@ -91,10 +91,28 @@ class CalendarApp(tk.Tk):
     def create_database(self):
         self.conn = sqlite3.connect('calendar_events.db')
         self.cursor = self.conn.cursor()
+        
+        # Check if the events table exists
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS events
-            (id INTEGER PRIMARY KEY, date TEXT, event TEXT, category TEXT)
+            SELECT name FROM sqlite_master WHERE type='table' AND name='events'
         ''')
+        table_exists = self.cursor.fetchone()
+        
+        if not table_exists:
+            # If the table doesn't exist, create it with all columns
+            self.cursor.execute('''
+                CREATE TABLE events
+                (id INTEGER PRIMARY KEY, date TEXT, event TEXT, category TEXT)
+            ''')
+        else:
+            # If the table exists, check if the category column exists
+            self.cursor.execute('PRAGMA table_info(events)')
+            columns = [column[1] for column in self.cursor.fetchall()]
+            
+            if 'category' not in columns:
+                # If the category column doesn't exist, add it
+                self.cursor.execute('ALTER TABLE events ADD COLUMN category TEXT')
+        
         self.conn.commit()
 
     def display_calendar(self):
